@@ -45,7 +45,7 @@ class RadiusAuthorisation(Radius_client):
                 attributes.append((a, v))
         message = 'sending AAA request:\n' 
         message += reduce(lambda x, y: x + y, ['%-32s = \'%s\'\n' % (x[0], str(x[1])) for x in attributes])
-        self.global_config['_sip_logger'].write(message, call_id = sip_cid)
+        self.global_config['sip_logger'].write(message, call_id = sip_cid)
         Radius_client.do_auth(self, attributes, self._process_result, res_cb, sip_cid, time())
 
     def _process_result(self, results, res_cb, sip_cid, btime):
@@ -60,5 +60,5 @@ class RadiusAuthorisation(Radius_client):
                 message += reduce(lambda x, y: x + y, ['%-32s = \'%s\'\n' % x for x in results[0]])
         else:
             message = 'Error sending AAA request (delay is %.3f)\n' % delay
-        self.global_config['_sip_logger'].write(message, call_id = sip_cid)
+        self.global_config['sip_logger'].write(message, call_id = sip_cid)
         res_cb(results)

@@ -112,7 +112,7 @@ class Rtp_proxy_client_local(object):
     def __init__(self, global_config, address = '/var/run/rtpproxy.sock'):
         self.address = address
         self.is_local = True
-        self.proxy_address = global_config['_sip_address']
+        self.proxy_address = global_config['sip_address']
         self.wi_available = Condition()
         self.wi = []
         self.worker = _RTPPLWorker(self)

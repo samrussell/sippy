@@ -150,7 +150,7 @@ class CallController(object):
                         self.uaA.recvEvent(CCEventFail((400, 'Malformed SDP Body'), rtime = event.rtime))
                         self.state = CCStateDead
                         return
-                    allowed_pts = self.global_config['_allowed_pts']
+                    allowed_pts = self.global_config['allowed_pts']
                     mbody = body.content.sections[0].m_header
                     if mbody.transport.lower() == 'rtp/avp':
                         old_len = len(mbody.formats)
@@ -181,11 +181,11 @@ class CallController(object):
                     self.rDone(((), 0))
                 elif auth == None or auth.username == None or len(auth.username) == 0:
                     self.username = self.remote_ip
-                    self.auth_proc = self.global_config['_radius_client'].do_auth(self.remote_ip, self.cli, self.cld, self.cGUID, \
+                    self.auth_proc = self.global_config['radius_client'].do_auth(self.remote_ip, self.cli, self.cld, self.cGUID, \
                       self.cId, self.remote_ip, self.rDone)
                 else:
                     self.username = auth.username
-                    self.auth_proc = self.global_config['_radius_client'].do_auth(auth.username, self.cli, self.cld, self.cGUID, 
+                    self.auth_proc = self.global_config['radius_client'].do_auth(auth.username, self.cli, self.cld, self.cGUID, 
                       self.cId, self.remote_ip, self.rDone, auth.realm, auth.nonce, auth.uri, auth.response)
                 return
             if self.state not in (CCStateARComplete, CCStateConnected, CCStateDisconnecting) or self.uaO == None:
@@ -425,19 +425,19 @@ class CallController(object):
 
     def aDead(self, ua):
         if (self.uaO == None or isinstance(self.uaO.state, UaStateDead)):
-            if self.global_config['_cmap'].debug_mode:
+            if self.global_config['cmap'].debug_mode:
                 print 'garbadge collecting', self
             self.acctA = None
             self.acctO = None
-            self.global_config['_cmap'].ccmap.remove(self)
+            self.global_config['cmap'].ccmap.remove(self)
 
     def oDead(self, ua):
         if ua == self.uaO and isinstance(self.uaA.state, UaStateDead):
-            if self.global_config['_cmap'].debug_mode:
+            if self.global_config['cmap'].debug_mode:
                 print 'garbadge collecting', self
             self.acctA = None
             self.acctO = None
-            self.global_config['_cmap'].ccmap.remove(self)
+            self.global_config['cmap'].ccmap.remove(self)
 
     def group_expires(self, skipto):
         if self.state != CCStateARComplete or len(self.routes) == 0 or self.routes[0][0] > skipto or \
@@ -503,7 +503,7 @@ class CallMap(object):
             # First check if request comes from IP that
             # we want to accept our traffic from
             if self.global_config.has_key('_accept_ips') and \
-              not source[0] in self.global_config['_accept_ips']:
+              not source[0] in self.global_config['accept_ips']:
                 resp = req.genResponse(403, 'Forbidden')
                 return (resp, None, None)
 
@@ -524,7 +524,7 @@ class CallMap(object):
                     return (resp, None, None)
 
             pass_headers = []
-            for header in self.global_config['_pass_headers']:
+            for header in self.global_config['pass_headers']:
                 hfs = req.getHFs(header)
                 if len(hfs) > 0:
                     pass_headers.extend(hfs)
@@ -560,7 +560,7 @@ class CallMap(object):
     def GClector(self):
         print 'GC is invoked, %d calls in map' % len(self.ccmap)
         if self.debug_mode:
-            print self.global_config['_sip_tm'].tclient, self.global_config['_sip_tm'].tserver
+            print self.global_config['sip_tm'].tclient, self.global_config['sip_tm'].tserver
             for cc in tuple(self.ccmap):
                 try:
                     print cc.uaA.state, cc.uaO.state
@@ -568,13 +568,13 @@ class CallMap(object):
                     print None
         else:
             print '[%d]: %d client, %d server transactions in memory' % \
-              (os.getpid(), len(self.global_config['_sip_tm'].tclient), len(self.global_config['_sip_tm'].tserver))
+              (os.getpid(), len(self.global_config['sip_tm'].tclient), len(self.global_config['sip_tm'].tserver))
         if self.safe_restart:
             if len(self.ccmap) == 0:
-                self.global_config['_sip_tm'].userv.close()
-                os.chdir(self.global_config['_orig_cwd'])
+                self.global_config['sip_tm'].userv.close()
+                os.chdir(self.global_config['orig_cwd'])
                 argv = [sys.executable,]
-                argv.extend(self.global_config['_orig_argv'])
+                argv.extend(self.global_config['orig_argv'])
                 os.execv(sys.executable, argv)
                 # Should not reach this point!
             self.el.ival = 1
@@ -609,10 +609,10 @@ class CallMap(object):
             return False
         if cmd == 'lt':
             res = 'In-memory server transactions:\n'
-            for tid, t in self.global_config['_sip_tm'].tserver.iteritems():
+            for tid, t in self.global_config['sip_tm'].tserver.iteritems():
                 res += '%s %s %s\n' % (tid, t.method, t.state)
             res += 'In-memory client transactions:\n'
-            for tid, t in self.global_config['_sip_tm'].tclient.iteritems():
+            for tid, t in self.global_config['sip_tm'].tclient.iteritems():
                 res += '%s %s %s\n' % (tid, t.method, t.state)
             clim.send(res)
             return False
@@ -623,13 +623,13 @@ class CallMap(object):
                 mindur = 0.0
             ctime = time()
             res = 'In-memory server transactions:\n'
-            for tid, t in self.global_config['_sip_tm'].tserver.iteritems():
+            for tid, t in self.global_config['sip_tm'].tserver.iteritems():
                 duration = ctime - t.rtime
                 if duration < mindur:
                     continue
                 res += '%s %s %s %s\n' % (tid, t.method, t.state, duration)
             res += 'In-memory client transactions:\n'
-            for tid, t in self.global_config['_sip_tm'].tclient.iteritems():
+            for tid, t in self.global_config['sip_tm'].tclient.iteritems():
                 duration = ctime - t.rtime
                 if duration < mindur:
                     continue
@@ -691,9 +691,9 @@ if __name__ == '__main__':
     global_config['keepalive_orig'] = 0
     global_config['auth_enable'] = True
     global_config['acct_enable'] = True
-    global_config['_pass_headers'] = []
-    global_config['_orig_argv'] = sys.argv[:]
-    global_config['_orig_cwd'] = os.getcwd()
+    global_config['pass_headers'] = []
+    global_config['orig_argv'] = sys.argv[:]
+    global_config['orig_cwd'] = os.getcwd()
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'fDl:p:d:P:L:s:a:t:T:k:m:A:ur:F:R:h:c:M:HC:W:',
           global_config.get_longopts())
@@ -703,8 +703,8 @@ if __name__ == '__main__':
     global_config['pidfile'] = '/var/run/b2bua.pid'
     global_config['logfile'] = '/var/log/b2bua.log'
     global_config['b2bua_socket'] = '/var/run/b2bua.sock'
-    global_config['_sip_address'] = SipConf.my_address
-    global_config['_sip_port'] = SipConf.my_port
+    global_config['sip_address'] = SipConf.my_address
+    global_config['sip_port'] = SipConf.my_port
     rtp_proxy_clients = []
     writeconf = None
     for o, a in opts:
@@ -806,7 +806,7 @@ if __name__ == '__main__':
             continue
 
     if global_config.has_key('_rtp_proxy_clients'):
-        for a in global_config['_rtp_proxy_clients']:
+        for a in global_config['rtp_proxy_clients']:
             if a.startswith('udp:'):
                 a = a.split(':', 2)
                 if len(a) == 2:
@@ -827,35 +827,35 @@ if __name__ == '__main__':
     if not global_config['foreground']:
         daemonize(logfile = global_config['logfile'])
 
-    global_config['_sip_logger'] = SipLogger('b2bua')
+    global_config['sip_logger'] = SipLogger('b2bua')
 
     if len(rtp_proxy_clients) > 0:
-        global_config['_rtp_proxy_clients'] = []
+        global_config['rtp_proxy_clients'] = []
         for address in rtp_proxy_clients:
-            global_config['_rtp_proxy_clients'].append(Rtp_proxy_client(global_config, address))
+            global_config['rtp_proxy_clients'].append(Rtp_proxy_client(global_config, address))
 
     if global_config['auth_enable'] or global_config['acct_enable']:
-        global_config['_radius_client'] = RadiusAuthorisation(global_config)
+        global_config['radius_client'] = RadiusAuthorisation(global_config)
     SipConf.my_uaname = 'Sippy B2BUA (RADIUS)'
 
-    global_config['_cmap'] = CallMap(global_config)
+    global_config['cmap'] = CallMap(global_config)
     if global_config.has_key('sip_proxy'):
         host_port = global_config['sip_proxy'].split(':', 1)
         if len(host_port) == 1:
-            global_config['_sip_proxy'] = (host_port[0], 5060)
+            global_config['sip_proxy'] = (host_port[0], 5060)
         else:
-            global_config['_sip_proxy'] = (host_port[0], int(host_port[1]))
-        global_config['_cmap'].proxy = StatefulProxy(global_config, global_config['_sip_proxy'])
+            global_config['sip_proxy'] = (host_port[0], int(host_port[1]))
+        global_config['cmap'].proxy = StatefulProxy(global_config, global_config['sip_proxy'])
 
     if global_config.getdefault('xmpp_b2bua_id', None) != None:
-        global_config['_xmpp_mode'] = True
-    global_config['_sip_tm'] = SipTransactionManager(global_config, global_config['_cmap'].recvRequest)
-    global_config['_sip_tm'].nat_traversal = global_config.getdefault('nat_traversal', False)
+        global_config['xmpp_mode'] = True
+    global_config['sip_tm'] = SipTransactionManager(global_config, global_config['cmap'].recvRequest)
+    global_config['sip_tm'].nat_traversal = global_config.getdefault('nat_traversal', False)
 
     cmdfile = global_config['b2bua_socket']
     if cmdfile.startswith('unix:'):
         cmdfile = cmdfile[5:]
-    cli_server = Cli_server_local(global_config['_cmap'].recvCommand, cmdfile)
+    cli_server = Cli_server_local(global_config['cmap'].recvCommand, cmdfile)
 
     if not global_config['foreground']:
         file(global_config['pidfile'], 'w').write(str(os.getpid()) + '\n')

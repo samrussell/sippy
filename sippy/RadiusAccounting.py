@@ -160,8 +160,8 @@ class RadiusAccounting(object):
             attributes.append(('provisional-timepoint', self.ftime(self.p100_ts)))
         pattributes = ['%-32s = \'%s\'\n' % (x[0], str(x[1])) for x in attributes]
         pattributes.insert(0, 'sending Acct %s (%s):\n' % (type, self.origin.capitalize()))
-        self.global_config['_sip_logger'].write(call_id = self.sip_cid, *pattributes)
-        self.global_config['_radius_client'].do_acct(attributes, self._process_result, self.sip_cid, time())
+        self.global_config['sip_logger'].write(call_id = self.sip_cid, *pattributes)
+        self.global_config['radius_client'].do_acct(attributes, self._process_result, self.sip_cid, time())
 
     def ftime(self, t):
         gt = gmtime(t)
@@ -184,4 +184,4 @@ class RadiusAccounting(object):
                 message = 'Acct/%s request rejected (delay is %.3f)\n' % (self.origin, delay)
         else:
             message = 'Error sending Acct/%s request (delay is %.3f)\n' % (self.origin, delay)
-        self.global_config['_sip_logger'].write(message, call_id = sip_cid)
+        self.global_config['sip_logger'].write(message, call_id = sip_cid)

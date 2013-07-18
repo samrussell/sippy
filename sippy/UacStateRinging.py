@@ -102,7 +102,7 @@ class UacStateRinging(UaStateGeneric):
                     self.ua.rAddr = self.ua.rTarget.getAddr()
                 req = self.ua.genRequest('BYE')
                 self.ua.lCSeq += 1
-                self.ua.global_config['_sip_tm'].newTransaction(req, \
+                self.ua.global_config['sip_tm'].newTransaction(req, \
                   laddress = self.ua.source_address)
                 return (UaStateFailed, self.ua.fail_cbs, resp.rtime, self.ua.origin, scode[0])
             self.ua.rUri.setTag(tag)
@@ -142,7 +142,7 @@ class UacStateRinging(UaStateGeneric):
 
     def recvEvent(self, event):
         if isinstance(event, CCEventFail) or isinstance(event, CCEventRedirect) or isinstance(event, CCEventDisconnect):
-            self.ua.global_config['_sip_tm'].cancelTransaction(self.ua.tr, reason = event.reason)
+            self.ua.global_config['sip_tm'].cancelTransaction(self.ua.tr, reason = event.reason)
             if self.ua.expire_timer != None:
                 self.ua.expire_timer.cancel()
                 self.ua.expire_timer = None

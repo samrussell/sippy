@@ -41,9 +41,9 @@ class StatefulProxy:
         req.insertHeaderBefore(via1, SipHeader(name = 'via', body = via0))
         req.setTarget(self.destination)
         print req
-        self.global_config['_sip_tm'].newTransaction(req, self.recvResponse)
+        self.global_config['sip_tm'].newTransaction(req, self.recvResponse)
         return (None, None, None)
 
     def recvResponse(self, resp):
         resp.removeHeader(resp.getHF('via'))
-        self.global_config['_sip_tm'].sendResponse(resp)
+        self.global_config['sip_tm'].sendResponse(resp)

@@ -128,16 +128,16 @@ if __name__ == '__main__':
 
     SipConf.my_uaname = 'Sippy B2BUA (Simple)'
     SipConf.allow_formats = (0, 8, 18, 100, 101)
-    global_config['_sip_address'] = SipConf.my_address
-    global_config['_sip_port'] = SipConf.my_port
+    global_config['sip_address'] = SipConf.my_address
+    global_config['sip_port'] = SipConf.my_port
     if laddr != None:
-        global_config['_sip_address'] = laddr
+        global_config['sip_address'] = laddr
     if lport != None:
-        global_config['_sip_port'] = lport
-    global_config['_sip_logger'] = SipLogger('b2bua')
+        global_config['sip_port'] = lport
+    global_config['sip_logger'] = SipLogger('b2bua')
 
     cmap = CallMap(global_config)
 
-    global_config['_sip_tm'] = SipTransactionManager(global_config, cmap.recvRequest)
+    global_config['sip_tm'] = SipTransactionManager(global_config, cmap.recvRequest)
 
     reactor.run(installSignalHandlers = True)

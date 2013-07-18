@@ -69,12 +69,12 @@ class UasStateIdle(UaStateGeneric):
         else:
             self.ua.rAddr = self.ua.rTarget.getAddr()
         self.ua.rAddr0 = self.ua.rAddr
-        self.ua.global_config['_sip_tm'].sendResponse(self.ua.uasResp)
+        self.ua.global_config['sip_tm'].sendResponse(self.ua.uasResp)
         self.ua.uasResp.getHFBody('to').setTag(self.ua.lTag)
         self.ua.lUri = SipFrom(address = self.ua.uasResp.getHFBody('to').getUri())
         self.ua.rUri = SipTo(address = self.ua.uasResp.getHFBody('from').getUri())
         self.ua.cId = self.ua.uasResp.getHFBody('call-id')
-        self.ua.global_config['_sip_tm'].regConsumer(self.ua, str(self.ua.cId))
+        self.ua.global_config['sip_tm'].regConsumer(self.ua, str(self.ua.cId))
         if req.countHFs('authorization') == 0:
             auth = None
         else:

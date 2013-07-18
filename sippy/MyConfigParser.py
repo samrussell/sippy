@@ -152,9 +152,9 @@ class MyConfigParser(RawConfigParser):
             if key == 'rtp_proxy_client':
                 # XXX compatibility option
                 if self.has_key('_rtp_proxy_clients'):
-                    self['_rtp_proxy_clients'].append(value)
+                    self['rtp_proxy_clients'].append(value)
                 else:
-                    self['_rtp_proxy_clients'] = [value,]
+                    self['rtp_proxy_clients'] = [value,]
                 if self.has_key('rtp_proxy_clients'):
                     self['rtp_proxy_clients'] += ',' + value
                 else:
@@ -163,9 +163,9 @@ class MyConfigParser(RawConfigParser):
             elif key == 'pass_header':
                 # XXX compatibility option
                 if self.has_key('_pass_headers'):
-                    self['_pass_headers'].append(value)
+                    self['pass_headers'].append(value)
                 else:
-                    self['_pass_headers'] = [value,]
+                    self['pass_headers'] = [value,]
                 if self.has_key('pass_headers'):
                     self['pass_headers'] += ',' + value
                 else:
@@ -185,23 +185,23 @@ class MyConfigParser(RawConfigParser):
             if _value <= 0:
                 raise ValueError, 'max_credit_time should be more than zero'
         elif key == 'allowed_pts':
-            self['_allowed_pts'] = [int(x) for x in value.split(',')]
+            self['allowed_pts'] = [int(x) for x in value.split(',')]
         elif key in ('accept_ips', 'rtp_proxy_clients'):
-            self['_' + key] = [x.strip() for x in value.split(',')]
+            self['' + key] = [x.strip() for x in value.split(',')]
         elif key == 'pass_headers':
-            self['_' + key] = [x.strip().lower() for x in value.split(',')]
+            self['' + key] = [x.strip().lower() for x in value.split(',')]
         elif key == 'sip_address':
             if 'my' in dir(value):
-                self['_sip_address'] = value
+                self['sip_address'] = value
                 value = '*'
             elif value in ('*', '0.0.0.0', '::'):
-                self['_sip_address'] = SipConf.my_address
+                self['sip_address'] = SipConf.my_address
             else:
-                self['_sip_address'] = value
+                self['sip_address'] = value
         elif key == 'sip_port':
             if _value <= 0 or _value > 65535:
                 raise ValueError, 'sip_port should be in the range 1-65535'
-            self['_sip_port'] = _value
+            self['sip_port'] = _value
         self[key] = value
 
     def options_help(self):
@@ -218,12 +218,12 @@ class MyConfigParser(RawConfigParser):
 
 if __name__ == '__main__':
     m = MyConfigParser()
-    m['_foo'] = 'bar'
+    m['foo'] = 'bar'
     m['b2bua_socket'] = 'bar1'
     m['acct_enable'] = True
     m['auth_enable'] = 'False'
     assert m.has_key('_foo')
-    assert m['_foo'] == 'bar'
+    assert m['foo'] == 'bar'
     assert m['b2bua_socket'] == 'bar1'
     assert m.get('_foo') == 'bar'
     assert m.get('b2bua_socket') == 'bar1'
@@ -235,9 +235,9 @@ if __name__ == '__main__':
     m.check_and_set('pass_header', 'a')
     m.check_and_set('pass_header', 'b')
     assert m['pass_headers'] == 'a,b'
-    assert m['_pass_headers'][0] == 'a'
-    assert m['_pass_headers'][1] == 'b'
+    assert m['pass_headers'][0] == 'a'
+    assert m['pass_headers'][1] == 'b'
     m.check_and_set('accept_ips', '1.2.3.4, 5.6.7.8')
     assert m['accept_ips'] == '1.2.3.4, 5.6.7.8'
-    assert m['_accept_ips'][0] == '1.2.3.4'
-    assert m['_accept_ips'][1] == '5.6.7.8'
+    assert m['accept_ips'][0] == '1.2.3.4'
+    assert m['accept_ips'][1] == '5.6.7.8'

@@ -176,7 +176,7 @@ class UA(object):
             challenge = resp.getHFBody('www-authenticate')
             req = self.genRequest('INVITE', self.lSDP, challenge.getNonce(), challenge.getRealm())
             self.lCSeq += 1
-            self.tr = self.global_config['_sip_tm'].newTransaction(req, self.recvResponse, \
+            self.tr = self.global_config['sip_tm'].newTransaction(req, self.recvResponse, \
               laddress = self.source_address, cb_ifver = 2)
             del self.reqs[cseq]
             return None
@@ -186,7 +186,7 @@ class UA(object):
             challenge = resp.getHFBody('proxy-authenticate')
             req = self.genRequest('INVITE', self.lSDP, challenge.getNonce(), challenge.getRealm(), SipProxyAuthorization)
             self.lCSeq += 1
-            self.tr = self.global_config['_sip_tm'].newTransaction(req, self.recvResponse, \
+            self.tr = self.global_config['sip_tm'].newTransaction(req, self.recvResponse, \
               laddress = self.source_address, cb_ifver = 2)
             del self.reqs[cseq]
             return None
@@ -296,7 +296,7 @@ class UA(object):
             ack_cb = self.recvACK
         else:
             ack_cb = None
-        self.global_config['_sip_tm'].sendResponse(self.uasResp, ack_cb = ack_cb)
+        self.global_config['sip_tm'].sendResponse(self.uasResp, ack_cb = ack_cb)
 
     def recvACK(self, req):
         if not self.isConnected():

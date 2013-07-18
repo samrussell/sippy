@@ -32,11 +32,11 @@ class UacStateUpdating(UaStateGeneric):
 
     def recvRequest(self, req):
         if req.getMethod() == 'INVITE':
-            self.ua.global_config['_sip_tm'].sendResponse(req.genResponse(491, 'Request Pending', server = self.ua.local_ua))
+            self.ua.global_config['sip_tm'].sendResponse(req.genResponse(491, 'Request Pending', server = self.ua.local_ua))
             return None
         elif req.getMethod() == 'BYE':
-            self.ua.global_config['_sip_tm'].cancelTransaction(self.ua.tr)
-            self.ua.global_config['_sip_tm'].sendResponse(req.genResponse(200, 'OK', server = self.ua.local_ua))
+            self.ua.global_config['sip_tm'].cancelTransaction(self.ua.tr)
+            self.ua.global_config['sip_tm'].sendResponse(req.genResponse(200, 'OK', server = self.ua.local_ua))
             #print 'BYE received in the Updating state, going to the Disconnected state'
             event = CCEventDisconnect(rtime = req.rtime, origin = self.ua.origin)
             try:
@@ -98,10 +98,10 @@ class UacStateUpdating(UaStateGeneric):
 
     def recvEvent(self, event):
         if isinstance(event, CCEventDisconnect) or isinstance(event, CCEventFail) or isinstance(event, CCEventRedirect):
-            self.ua.global_config['_sip_tm'].cancelTransaction(self.ua.tr)
+            self.ua.global_config['sip_tm'].cancelTransaction(self.ua.tr)
             req = self.ua.genRequest('BYE', reason = event.reason)
             self.ua.lCSeq += 1
-            self.ua.global_config['_sip_tm'].newTransaction(req, \
+            self.ua.global_config['sip_tm'].newTransaction(req, \
               laddress = self.ua.source_address)
             self.ua.cancelCreditTimer()
             self.ua.disconnect_ts = event.rtime
