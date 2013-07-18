@@ -123,7 +123,7 @@ class local4remote(object):
             socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
         except:
             socket.has_ipv6 = False
-        if 'my' in dir(global_config['_sip_address']):
+        if '_sip_address' in global_config and 'my' in dir(global_config['_sip_address']):
             if socket.has_ipv6:
                 laddresses = (('0.0.0.0', global_config['_sip_port']), ('[::]', global_config['_sip_port']))
             else:
