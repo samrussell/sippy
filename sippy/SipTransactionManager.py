@@ -104,6 +104,7 @@ class local4remote(object):
     fixed = False
 
     def __init__(self, global_config, handleIncoming):
+        print global_config
         if 'xmpp_mode' not in global_config or not global_config['xmpp_mode']:
             from Udp_server import Udp_server
             self.udp_server_class = Udp_server
