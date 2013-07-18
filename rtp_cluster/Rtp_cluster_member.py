@@ -72,7 +72,7 @@ class Rtp_cluster_member(Rtp_proxy_client):
     def go_online(self):
         #print 'go_online', self
         if not self.online:
-            self.global_config['_sip_logger'].write('RTPproxy "%s" has changed ' \
+            self.global_config['sip_logger'].write('RTPproxy "%s" has changed ' \
               'status from offline to online' % self.name)
             if self.on_state_change != None:
                 self.on_state_change(self, True)
@@ -81,7 +81,7 @@ class Rtp_cluster_member(Rtp_proxy_client):
     def go_offline(self):
         #print 'go_offline', self
         if self.online:
-            self.global_config['_sip_logger'].write('RTPproxy "%s" has changed ' \
+            self.global_config['sip_logger'].write('RTPproxy "%s" has changed ' \
               'status from online to offline' % self.name)
             if self.on_state_change != None:
                 self.on_state_change(self, False)

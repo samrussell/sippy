@@ -155,15 +155,15 @@ def read_cluster_config(global_config, config, debug = False):
     if h.warnings:
         for warning in h.warnings:
             if debug:
-                global_config['_sip_logger'].write('read_cluster_config:warning: %s' % str(warning))
+                global_config['sip_logger'].write('read_cluster_config:warning: %s' % str(warning))
 
     if h.errors:
         for error in h.errors:
-            global_config['_sip_logger'].write('read_cluster_config:error: %s' % str(error))
+            global_config['sip_logger'].write('read_cluster_config:error: %s' % str(error))
         raise Exception('validation failed')
 
     if debug:
-        global_config['_sip_logger'].write('Parsed:\n%s' % parsed_config[0]['rtpproxies'][0])
+        global_config['sip_logger'].write('Parsed:\n%s' % parsed_config[0]['rtpproxies'][0])
     return parsed_config
 
 def gen_cluster_config(config):
@@ -206,18 +206,18 @@ if __name__ == '__main__':
     from sippy.SipLogger import SipLogger
 
     global_config = {}
-    global_config['_sip_logger'] = SipLogger('Rtp_cluster_config::selftest')
+    global_config['sip_logger'] = SipLogger('Rtp_cluster_config::selftest')
     try:
-        global_config['_sip_logger'].write('Reading config...')
+        global_config['sip_logger'].write('Reading config...')
         f = open('rtp_cluster.xml')
         config = read_cluster_config(global_config, f.read(), True)
 
-        global_config['_sip_logger'].write('Generating config...')
+        global_config['sip_logger'].write('Generating config...')
         config = gen_cluster_config(config)
         
-        global_config['_sip_logger'].write('Reading generated config...')
+        global_config['sip_logger'].write('Reading generated config...')
         config = read_cluster_config(global_config, config, True)
         
     except Exception, detail:
-        global_config['_sip_logger'].write('error: %s' % detail)
+        global_config['sip_logger'].write('error: %s' % detail)
         traceback.print_exc(file = sys.stderr)

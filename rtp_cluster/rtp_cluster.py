@@ -249,7 +249,7 @@ if __name__ == '__main__':
     pidfile = '/var/run/rtp_cluster.pid'
     logfile = '/var/log/rtp_cluster.log'
     global_config['conffile'] = '/usr/local/etc/rtp_cluster.xml'
-    global_config['_sip_address'] = MyAddress()
+    global_config['sip_address'] = MyAddress()
     for o, a in opts:
         if o == '-f':
             foreground = True
@@ -275,7 +275,7 @@ if __name__ == '__main__':
         file(pidfile, 'w').write(str(os.getpid()) + '\n')
         sip_logger = SipLogger('rtp_cluster')
 
-    global_config['_sip_logger'] = sip_logger
+    global_config['sip_logger'] = sip_logger
 
     sip_logger.write(' o initializing CLI...')
 
