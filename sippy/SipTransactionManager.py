@@ -104,9 +104,7 @@ class local4remote(object):
     fixed = False
 
     def __init__(self, global_config, handleIncoming):
-        # debug
-        print global_config.keys()
-        if '_xmpp_mode' not in global_config or not global_config['_xmpp_mode']:
+        if not global_config['xmpp_mode']:
             from Udp_server import Udp_server
             self.udp_server_class = Udp_server
         else:
@@ -125,17 +123,14 @@ class local4remote(object):
             socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
         except:
             socket.has_ipv6 = False
-        if '_sip_address' in global_config:
-            if 'my' in dir(global_config['_sip_address']):
-                if socket.has_ipv6:
-                    laddresses = (('0.0.0.0', global_config['_sip_port']), ('[::]', global_config['_sip_port']))
-                else:
-                    laddresses = (('0.0.0.0', global_config['_sip_port']),)
+        if 'my' in dir(global_config['sip_address']):
+            if socket.has_ipv6:
+                laddresses = (('0.0.0.0', global_config['sip_port']), ('[::]', global_config['sip_port']))
             else:
-                laddresses = ((global_config['_sip_address'], global_config['_sip_port']),)
-                self.fixed = True
+                laddresses = (('0.0.0.0', global_config['sip_port']),)
         else:
-            laddresses = (('0.0.0.0', global_config['_sip_port']),)
+            laddresses = ((global_config['sip_address'], global_config['sip_port']),)
+            self.fixed = True
         for laddress in laddresses:
             server = self.udp_server_class(global_config, laddress, handleIncoming)
             self.cache_l2s[laddress] = server
@@ -166,9 +161,9 @@ class local4remote(object):
                 _address = (ai[0][4][0], address[1], ai[0][4][2], ai[0][4][3])
             self.skt.connect(_address)
             if family == socket.AF_INET:
-                laddress = (self.skt.getsockname()[0], self.global_config['_sip_port'])
+                laddress = (self.skt.getsockname()[0], self.global_config['sip_port'])
             else:
-                laddress = ('[%s]' % self.skt.getsockname()[0], self.global_config['_sip_port'])
+                laddress = ('[%s]' % self.skt.getsockname()[0], self.global_config['sip_port'])
             self.cache_r2l[address[0]] = laddress
         else:
             laddress = address
@@ -210,7 +205,7 @@ class SipTransactionManager(object):
         if len(data) < 32:
             return
         rtime = time()
-        self.global_config['_sip_logger'].write('RECEIVED message from %s:%d:\n' % address, data, ltime = rtime)
+        self.global_config['sip_logger'].write('RECEIVED message from %s:%d:\n' % address, data, ltime = rtime)
         checksum = md5(data).digest()
         retrans = self.l1rcache.get(checksum, None)
         if retrans == None:
@@ -706,7 +701,7 @@ class SipTransactionManager(object):
 
     def transmitData(self, userv, data, address, cachesum = None):
         userv.send_to(data, address)
-        self.global_config['_sip_logger'].write('SENDING message to %s:%d:\n' % address, data)
+        self.global_config['sip_logger'].write('SENDING message to %s:%d:\n' % address, data)
         if cachesum != None:
             self.l1rcache[cachesum] = (userv, data, address)
 
