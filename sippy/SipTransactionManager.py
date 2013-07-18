@@ -123,14 +123,17 @@ class local4remote(object):
             socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
         except:
             socket.has_ipv6 = False
-        if '_sip_address' in global_config and 'my' in dir(global_config['_sip_address']):
-            if socket.has_ipv6:
-                laddresses = (('0.0.0.0', global_config['_sip_port']), ('[::]', global_config['_sip_port']))
+        if '_sip_address' in global_config:
+            if 'my' in dir(global_config['_sip_address']):
+                if socket.has_ipv6:
+                    laddresses = (('0.0.0.0', global_config['_sip_port']), ('[::]', global_config['_sip_port']))
+                else:
+                    laddresses = (('0.0.0.0', global_config['_sip_port']),)
             else:
-                laddresses = (('0.0.0.0', global_config['_sip_port']),)
+                laddresses = ((global_config['_sip_address'], global_config['_sip_port']),)
+                self.fixed = True
         else:
-            laddresses = ((global_config['_sip_address'], global_config['_sip_port']),)
-            self.fixed = True
+            laddresses = (('0.0.0.0', global_config['_sip_port']),)
         for laddress in laddresses:
             server = self.udp_server_class(global_config, laddress, handleIncoming)
             self.cache_l2s[laddress] = server
